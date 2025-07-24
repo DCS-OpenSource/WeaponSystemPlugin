@@ -56,6 +56,7 @@ function WeaponSystem:launch()
 end
 
 
+-- TODO, if you switch armed pylons mid salvo, it fires rockets in the new pylon (fix)
 function WeaponSystem:update()
     if rocketSalvoTimer >= 0 then
         rocketSalvoTimer = rocketSalvoTimer + update_rate
@@ -65,23 +66,20 @@ function WeaponSystem:update()
             rocketsFiredThisSalvo = rocketsFiredThisSalvo + 1
 
             for i, pylon in ipairs(self.pylons) do
-                if pylon and pylon.launch then
+                if pylon.armed and pylon:getStationInfo().weapon.level3 == wsType_Rocket and pylon:getStationInfo().count > 0 then
                     pylon:launch()
                 end
             end
         end
-    end
-
-    if rocketsFiredThisSalvo >= self.rocketSalvoQuantity then
-        rocketSalvoTimer = -1
-        rocketsFiredThisSalvo = 0
+        if (rocketsFiredThisSalvo >= self.rocketSalvoQuantity) then
+            rocketSalvoTimer = -1
+            rocketsFiredThisSalvo = 0
+        end
     end
 end
 
 
-
-
-
+--- Function to start the rocket salvo firing process.
 function WeaponSystem:fireRocketSalvo(index)
     if rocketSalvoTimer == -1 then -- if not already firing a salvo
         if self.rocketSalvoQuantity == 1 then
@@ -104,9 +102,11 @@ end
 --- @param quantity number The number of rockets to fire in a salvo.
 function WeaponSystem:setRocketSalvoQuantity(quantity)
     self.rocketSalvoQuantity = quantity
-    print_message_to_user("Rocket salvo quantity set to: " .. tostring(self.rocketSalvoQuantity))
 end
 
+
+--- Function to return the list of pylon objects
+--- @return table pylons list of Pylon objects managed by this WeaponSystem.
 function WeaponSystem:getPylons()
     return self.pylons
 end

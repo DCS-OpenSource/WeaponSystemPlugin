@@ -23,7 +23,6 @@ end
 
 function Pylon:setArmed(armed)
     self.armed = armed
-    print_message_to_user("Pylon " .. self.index .. " armed status: " .. tostring(self.armed))
 end
 
 function Pylon:getStationInfo()
@@ -33,7 +32,6 @@ end
 
 function Pylon:jettison()
     print_message_to_user("Jettisoning pylon " .. self.index)
-
 end
 
 function Pylon:isArmed()
