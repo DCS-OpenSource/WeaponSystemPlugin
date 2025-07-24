@@ -21,6 +21,11 @@ function Pylon:launch()
     end
 end
 
+function Pylon:setArmed(armed)
+    self.armed = armed
+    print_message_to_user("Pylon " .. self.index .. " armed status: " .. tostring(self.armed))
+end
+
 function Pylon:getStationInfo()
     return self.parent.device:get_station_info(self.index - 1)
 end

@@ -6,6 +6,9 @@ WeaponSystem.__index = WeaponSystem
 package.path = package.path..";"..LockOn_Options.script_path.."WeaponSystemPlugin/?.lua"
 local Pylon = require("Pylon")
 
+local rocketSalvoTimer = -1
+local rocketsFiredThisSalvo = 0
+
 --- This is the WeaponSystem class that manages multiple pylons and their operations.
 --- @param device table The device that this weapon system is associated with. (parse it GetSelf())
 --- @return self table WeaponSystem object
@@ -13,6 +16,8 @@ function WeaponSystem:new(device)
     local self = setmetatable({}, WeaponSystem)
     self.device = device
     self.pylons = {}
+    self.rocketSalvoQuantity = 1 -- How many rockets should be fired per press
+    self.rocketSalvoInterval = 0
     self.weaponTypes = {
         ["ROCKETS"]     = wsType_Rocket,
         ["BOMBS"]       = wsType_Bomb,
@@ -30,12 +35,76 @@ function WeaponSystem:addPylon(index, weaponType, armed)
     table.insert(self.pylons, pylon)
 end
 
+
+--- Sets the armed status of a specific pylon.
+--- @param index number The index of the pylon (1-based).
+--- @param armed boolean The armed status to set.
+function WeaponSystem:armPylon(index, armed)
+    if self.pylons[index] then
+        self.pylons[index]:setArmed(armed)
+    end
+end
+
 --- Launches the weapon from the currently selected pylon.
 --- @return nil
 function WeaponSystem:launch()
-    for _, pylon in ipairs(self.pylons) do
-        pylon:launch()
+    for i, pylon in ipairs(self.pylons) do
+        if pylon:getStationInfo().weapon.level3 == wsType_Rocket then
+            self:fireRocketSalvo(i)
+        end
     end
+end
+
+
+function WeaponSystem:update()
+    if rocketSalvoTimer >= 0 then
+        rocketSalvoTimer = rocketSalvoTimer + update_rate
+
+        if rocketSalvoTimer >= self.rocketSalvoInterval then
+            rocketSalvoTimer = 0
+            rocketsFiredThisSalvo = rocketsFiredThisSalvo + 1
+
+            for i, pylon in ipairs(self.pylons) do
+                if pylon and pylon.launch then
+                    pylon:launch()
+                end
+            end
+        end
+    end
+
+    if rocketsFiredThisSalvo >= self.rocketSalvoQuantity then
+        rocketSalvoTimer = -1
+        rocketsFiredThisSalvo = 0
+    end
+end
+
+
+
+
+
+function WeaponSystem:fireRocketSalvo(index)
+    if rocketSalvoTimer == -1 then -- if not already firing a salvo
+        if self.rocketSalvoQuantity == 1 then
+            self.pylons[index]:launch()
+        else
+            rocketSalvoTimer = 0 -- start the timer for the salvo in update
+        end
+    end
+end
+
+
+--- Function to setup rocket salvo math
+--- @param interval number The time interval between each rocket in the salvo. (in seconds)
+function WeaponSystem:setRocketSalvoInterval(interval)
+    self.rocketSalvoInterval = interval
+end
+
+
+--- Function to set the number of rockets to fire in a salvo.
+--- @param quantity number The number of rockets to fire in a salvo.
+function WeaponSystem:setRocketSalvoQuantity(quantity)
+    self.rocketSalvoQuantity = quantity
+    print_message_to_user("Rocket salvo quantity set to: " .. tostring(self.rocketSalvoQuantity))
 end
 
 function WeaponSystem:getPylons()
