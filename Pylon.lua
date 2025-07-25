@@ -31,7 +31,7 @@ end
 
 
 function Pylon:jettison()
-    print_message_to_user("Jettisoning pylon " .. self.index)
+    self.parent.device:emergency_jettison(self.index - 1)
 end
 
 function Pylon:isArmed()
