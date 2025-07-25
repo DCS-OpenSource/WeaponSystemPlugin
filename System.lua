@@ -46,12 +46,15 @@ function WeaponSystem:armPylon(index, armed)
 end
 
 --- Launches the weapon from the currently selected pylon.
+--- @param index number|nil The index of the pylon to launch from (1-based). If nil, it will launch from all armed pylons.
 --- @return nil
-function WeaponSystem:launch()
-    for i, pylon in ipairs(self.pylons) do
-        if pylon:getStationInfo().weapon.level3 == wsType_Rocket then
-            self:fireRocketSalvo(i)
+function WeaponSystem:launch(index)
+    if not index then
+        for i, pylon in ipairs(self.pylons) do
+            pylon:launch()
         end
+    else
+        self.pylons[index]:launch()
     end
 end
 
@@ -80,13 +83,9 @@ end
 
 
 --- Function to start the rocket salvo firing process.
-function WeaponSystem:fireRocketSalvo(index)
+function WeaponSystem:fireRocketSalvo()
     if rocketSalvoTimer == -1 then -- if not already firing a salvo
-        if self.rocketSalvoQuantity == 1 then
-            self.pylons[index]:launch()
-        else
-            rocketSalvoTimer = 0 -- start the timer for the salvo in update
-        end
+        rocketSalvoTimer = 0 -- start the timer for the salvo in update
     end
 end
 
