@@ -104,6 +104,13 @@ function WeaponSystem:setRocketSalvoQuantity(quantity)
 end
 
 
+--- Function to get the number of rockets to fire in a salvo
+--- @return number quantity salvo size
+function WeaponSystem:getRocketSalvoQuantity()
+    return self.rocketSalvoQuantity
+end
+
+
 --- Function to return the list of pylon objects
 --- @return table pylons list of Pylon objects managed by this WeaponSystem.
 function WeaponSystem:getPylons()
