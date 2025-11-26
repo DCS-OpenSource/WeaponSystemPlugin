@@ -20,6 +20,11 @@ function Pylon:launch()
         elseif stationInfo.weapon.level2 == wsType_Shell then
             self.parent.device:launch_station(self.index - 1)
             return true
+        elseif stationInfo.weapon.level3 == wsType_Bomb_A then
+            self.parent.device:launch_station(self.index - 1)
+            return true
+        else
+            return false
         end
     end
 end
