@@ -1,11 +1,10 @@
 local Pylon = {}
 Pylon.__index = Pylon
 
-function Pylon:new(parent, index, weaponType, armed)
+function Pylon:new(parent, index, armed)
     local self = setmetatable({}, Pylon)
     self.parent = parent          -- reference to the WeaponSystem instance
     self.index = index
-    self.weaponType = weaponType or "Unknown"
     self.armed = armed or false
     return self
 end

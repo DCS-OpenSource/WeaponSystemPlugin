@@ -29,9 +29,8 @@ end
 
 --- Adds a new pylon to the weapon system.
 --- @param index number The index of the pylon (1-based).
---- @param weaponType table The type of weapon this pylon will carry. {"ROCKETS", "BOMBS", "MISSILES", "SHELL"}.
-function WeaponSystem:addPylon(index, weaponType, armed)
-    local pylon = Pylon:new(self, index, weaponType, armed)
+function WeaponSystem:addPylon(index, armed)
+    local pylon = Pylon:new(self, index, armed)
     table.insert(self.pylons, pylon)
 end
 
