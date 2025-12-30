@@ -22,6 +22,9 @@ function Pylon:launch()
         elseif stationInfo.weapon.level3 == wsType_Bomb_A then
             self.parent.device:launch_station(self.index - 1)
             return true
+        elseif stationInfo.wstype.level3 == wsType_Cannon_Cont then -- weapons wstypes don't sync through multicrew avsimpleweaponsystem, but wstype does
+            self.parent.device:launch_station(self.index - 1)
+            return true
         else
             return false
         end
