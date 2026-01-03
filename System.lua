@@ -61,7 +61,7 @@ end
 -- TODO, if you switch armed pylons mid salvo, it fires rockets in the new pylon (fix)
 function WeaponSystem:update()
     if rocketSalvoTimer >= 0 then
-        rocketSalvoTimer = rocketSalvoTimer + update_rate
+        rocketSalvoTimer = rocketSalvoTimer + update_time_step
 
         if rocketSalvoTimer >= self.rocketSalvoInterval then
             rocketSalvoTimer = 0
