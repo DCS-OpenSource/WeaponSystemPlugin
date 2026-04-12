@@ -24,6 +24,7 @@ function WeaponSystem:new(device)
         ["MISSILES"]    = wsType_Missile,
         ["SHELL"]       = wsType_Shell
     }
+    self.onRocketSalvoComplete = nil -- optional callback
     return self
 end
 
@@ -58,7 +59,6 @@ function WeaponSystem:launch(index)
 end
 
 
--- TODO, if you switch armed pylons mid salvo, it fires rockets in the new pylon (fix)
 function WeaponSystem:update()
     if rocketSalvoTimer >= 0 then
         rocketSalvoTimer = rocketSalvoTimer + update_time_step
@@ -67,15 +67,38 @@ function WeaponSystem:update()
             rocketSalvoTimer = 0
             rocketsFiredThisSalvo = rocketsFiredThisSalvo + 1
 
+            -- Fire rockets
             for i, pylon in ipairs(self.pylons) do
-                if pylon.armed and pylon:getStationInfo().weapon.level3 == wsType_Rocket and pylon:getStationInfo().count > 0 then
+                if pylon.armed
+                    and pylon:getStationInfo().weapon.level3 == wsType_Rocket
+                    and pylon:getStationInfo().count > 0 then
+
                     pylon:launch()
                 end
             end
         end
-        if (rocketsFiredThisSalvo >= self.rocketSalvoQuantity) then
+
+        -- Check if any rockets remain
+        local rocketsRemaining = false
+
+        for i, pylon in ipairs(self.pylons) do
+            if pylon.armed and pylon:getStationInfo().weapon.level3 == wsType_Rocket then
+                if pylon:getStationInfo().count > 0 then
+                    rocketsRemaining = true
+                    break
+                end
+            end
+        end
+
+        -- Exit conditions
+        if (rocketsFiredThisSalvo >= self.rocketSalvoQuantity) or (not rocketsRemaining) then
             rocketSalvoTimer = -1
             rocketsFiredThisSalvo = 0
+
+            -- Call callback if set
+            if self.onRocketSalvoComplete then
+                self:onRocketSalvoComplete()
+            end
         end
     end
 end
@@ -107,6 +130,14 @@ end
 --- @return number quantity salvo size
 function WeaponSystem:getRocketSalvoQuantity()
     return self.rocketSalvoQuantity
+end
+
+
+--- Sets a callback function to be called when a rocket salvo completes.
+--- @param callbackFunction function|nil Function to call on completion
+function WeaponSystem:setRocketSalvoCallback(callbackFunction)
+    self.onRocketSalvoComplete = callbackFunction
+    print_message_to_user("SET CALLBACK ON:".. tostring(self))
 end
 
 
