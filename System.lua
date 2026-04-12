@@ -137,7 +137,6 @@ end
 --- @param callbackFunction function|nil Function to call on completion
 function WeaponSystem:setRocketSalvoCallback(callbackFunction)
     self.onRocketSalvoComplete = callbackFunction
-    print_message_to_user("SET CALLBACK ON:".. tostring(self))
 end
 
 
